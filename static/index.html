@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LC Turismo â PendÃªncias Operacionais</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+
+        /* ââ HEADER ââ */
+        .header {
+            background: linear-gradient(135deg, #1F4E79 0%, #2980b9 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .header h1 { font-size: 22px; font-weight: 700; }
+        .header .subtitle { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+        .header .status { font-size: 12px; opacity: 0.7; text-align: right; }
+        .header .status .live { color: #2ecc71; font-weight: bold; }
+
+        /* ââ CONTROLS ââ */
+        .controls {
+            background: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .controls label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+        .controls input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .controls input[type="date"]:focus {
+            outline: none;
+            border-color: #2980b9;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: #1F4E79;
+            color: white;
+        }
+        .btn-primary:hover { background: #163a5c; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            background: #999;
+            cursor: wait;
+        }
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #333;
+        }
+        .btn-secondary:hover { background: #ddd; }
+        .btn-today {
+            background: #27ae60;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .btn-today:hover { background: #219a52; }
+        .btn-tomorrow {
+            background: #e67e22;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .btn-tomorrow:hover { background: #d35400; }
+        .btn-week {
+            background: #8e44ad;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .btn-week:hover { background: #7d3c98; }
+
+        .spinner {
+            display: none;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ââ STATS ââ */
+        .stats {
+            display: none;
+            padding: 15px 30px;
+            background: white;
+            margin: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .stat-card .label {
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .stat-card.total .number { color: #1F4E79; }
+        .stat-card.rsv .number { color: #f39c12; }
+        .stat-card.lcx .number { color: #3498db; }
+        .stat-card.pend .number { color: #e74c3c; }
+        .stat-card.ok .number { color: #27ae60; }
+
+        /* ââ FILTERS ââ */
+        .filters {
+            display: none;
+            padding: 10px 30px;
+            background: white;
+            margin: 0 20px 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            background: white;
+            transition: all 0.2s;
+        }
+        .filter-chip.active {
+            border-color: #1F4E79;
+            background: #1F4E79;
+            color: white;
+        }
+        .filter-chip:hover { border-color: #1F4E79; }
+        .search-input {
+            padding: 6px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 200px;
+        }
+        .search-input:focus { outline: none; border-color: #2980b9; }
+
+        /* ââ TABLE ââ */
+        .table-wrapper {
+            display: none;
+            margin: 0 20px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .table-scroll {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        thead th {
+            background: #1F4E79;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+        }
+        thead th:hover { background: #163a5c; }
+        tbody tr {
+            transition: background 0.15s;
+        }
+        tbody tr:hover { background: #eef3f7 !important; }
+        tbody td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+        tbody td.wrap { white-space: normal; max-width: 250px; }
+
+        /* Row colors by system */
+        tr.row-rsv { background: #FEF9E7; }
+        tr.row-lcx { background: #D6EAF8; }
+
+        /* Status badges */
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-ok { background: #d5f5e3; color: #1e8449; }
+        .badge-pend { background: #fadbd8; color: #c0392b; }
+        .badge-rsv { background: #fdebd0; color: #a04000; }
+        .badge-lcx { background: #d4e6f1; color: #1a5276; }
+
+        /* ââ LOADING ââ */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-card {
+            background: white;
+            padding: 40px 50px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .loading-card .big-spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #eee;
+            border-top-color: #1F4E79;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+        .loading-card p {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .loading-card .sub {
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* ââ EMPTY STATE ââ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 15px; }
+        .empty-state p { font-size: 16px; }
+        .empty-state .hint { font-size: 13px; margin-top: 8px; }
+
+        /* ââ TOAST ââ */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 20px;
+            background: #1F4E79;
+            color: white;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        @media (max-width: 768px) {
+            .header { padding: 15px; }
+            .header h1 { font-size: 18px; }
+            .controls { padding: 15px; gap: 10px; }
+            .stats, .filters, .table-wrapper { margin: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <h1>PendÃªncias Operacionais</h1>
+        <div class="subtitle">LC Turismo â Reservame + LCX</div>
+    </div>
+    <div class="status">
+        <div>Ãltima atualizaÃ§Ã£o:</div>
+        <div id="lastUpdate">â</div>
+    </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+    <label>De:</label>
+    <input type="date" id="dataInicio" />
+    <label>AtÃ©:</label>
+    <input type="date" id="dataFim" />
+
+    <button class="btn btn-primary" id="btnBuscar" onclick="buscar()">
+        <span class="spinner" id="spinnerBtn"></span>
+        ð Atualizar
+    </button>
+
+    <div style="border-left: 2px solid #ddd; height: 30px;"></div>
+
+    <button class="btn btn-today" onclick="buscarHoje()">Hoje</button>
+    <button class="btn btn-tomorrow" onclick="buscarAmanha()">AmanhÃ£</button>
+    <button class="btn btn-week" onclick="buscarSemana()">PrÃ³x. 7 dias</button>
+</div>
+
+<!-- STATS -->
+<div class="stats" id="stats">
+    <div class="stats-grid">
+        <div class="stat-card total">
+            <div class="number" id="statTotal">0</div>
+            <div class="label">Total</div>
+        </div>
+        <div class="stat-card rsv">
+            <div class="number" id="statRsv">0</div>
+            <div class="label">Reservame</div>
+        </div>
+        <div class="stat-card lcx">
+            <div class="number" id="statLcx">0</div>
+            <div class="label">LCX</div>
+        </div>
+        <div class="stat-card pend">
+            <div class="number" id="statHotel">0</div>
+            <div class="label">Hotel Pend.</div>
+        </div>
+        <div class="stat-card pend">
+            <div class="number" id="statTel">0</div>
+            <div class="label">Tel. Pend.</div>
+        </div>
+        <div class="stat-card pend">
+            <div class="number" id="statFin">0</div>
+            <div class="label">Financ. Pend.</div>
+        </div>
+        <div class="stat-card ok">
+            <div class="number" id="statOk">0</div>
+            <div class="label">Completos</div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters" id="filters">
+    <div class="filter-row">
+        <span style="font-size: 12px; font-weight: 700; color: #777;">SISTEMA:</span>
+        <div class="filter-chip active" data-filter="all" onclick="setFilter(this)">Todos</div>
+        <div class="filter-chip" data-filter="pend" onclick="setFilter(this)">SÃ³ PendÃªncias</div>
+        <div class="filter-chip" data-filter="rsv" onclick="setFilter(this)">Reservame</div>
+        <div class="filter-chip" data-filter="lcx" onclick="setFilter(this)">LCX</div>
+        <div style="border-left: 2px solid #ddd; height: 24px; margin: 0 5px;"></div>
+        <span style="font-size: 12px; font-weight: 700; color: #777;">DESTINO:</span>
+        <select id="filterDestino" onchange="filterTable()" style="padding: 6px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 12px; font-weight: 600; background: white; cursor: pointer;">
+            <option value="">Todos os destinos</option>
+        </select>
+        <div style="flex:1"></div>
+        <input type="text" class="search-input" placeholder="Buscar nome, hotel, vendedor..." oninput="filterTable()" id="searchInput" />
+    </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrapper" id="tableWrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Sistema</th>
+                    <th onclick="sortTable(1)">Destino</th>
+                    <th onclick="sortTable(2)">Tour</th>
+                    <th onclick="sortTable(3)">Hora</th>
+                    <th onclick="sortTable(4)">ID</th>
+                    <th onclick="sortTable(5)">Nome</th>
+                    <th onclick="sortTable(6)">PAX</th>
+                    <th onclick="sortTable(7)">Hotel</th>
+                    <th onclick="sortTable(8)">Hotel</th>
+                    <th onclick="sortTable(9)">Telefone</th>
+                    <th onclick="sortTable(10)">Tel</th>
+                    <th onclick="sortTable(11)">Vendedor</th>
+                    <th onclick="sortTable(12)">Valor</th>
+                    <th onclick="sortTable(13)">Fin</th>
+                    <th onclick="sortTable(14)">Obs</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- EMPTY STATE -->
+<div class="empty-state" id="emptyState">
+    <div class="icon">ð</div>
+    <p>Selecione uma data e clique em Atualizar</p>
+    <div class="hint">Ou use os botÃµes rÃ¡pidos: Hoje, AmanhÃ£, PrÃ³x. 7 dias</div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading">
+    <div class="loading-card">
+        <div class="big-spinner"></div>
+        <p>Buscando dados...</p>
+        <div class="sub" id="loadingMsg">Conectando ao Reservame e LCX</div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ââ Init dates ââ
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    document.getElementById('dataInicio').value = todayStr;
+    document.getElementById('dataFim').value = todayStr;
+
+    let currentData = [];
+    let currentFilter = 'all';
+    let sortCol = -1;
+    let sortAsc = true;
+
+    // ââ Quick buttons ââ
+    function buscarHoje() {
+        document.getElementById('dataInicio').value = todayStr;
+        document.getElementById('dataFim').value = todayStr;
+        buscar();
+    }
+    function buscarAmanha() {
+        const tom = new Date(today); tom.setDate(tom.getDate() + 1);
+        const s = tom.toISOString().split('T')[0];
+        document.getElementById('dataInicio').value = s;
+        document.getElementById('dataFim').value = s;
+        buscar();
+    }
+    function buscarSemana() {
+        const end = new Date(today); end.setDate(end.getDate() + 7);
+        document.getElementById('dataInicio').value = todayStr;
+        document.getElementById('dataFim').value = end.toISOString().split('T')[0];
+        buscar();
+    }
+
+    // ââ Main fetch ââ
+    async function buscar() {
+        const dataInicio = document.getElementById('dataInicio').value;
+        const dataFim = document.getElementById('dataFim').value;
+        if (!dataInicio) { showToast('Selecione uma data!'); return; }
+
+        // Show loading
+        document.getElementById('loading').style.display = 'flex';
+        document.getElementById('btnBuscar').disabled = true;
+        document.getElementById('spinnerBtn').style.display = 'inline-block';
+        document.getElementById('loadingMsg').textContent = 'Conectando ao Reservame e LCX...';
+
+        try {
+            const resp = await fetch('/api/buscar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: dataInicio, dataFim: dataFim || dataInicio })
+            });
+
+            const result = await resp.json();
+
+            if (result.success) {
+                currentData = result.data;
+                renderStats(result.stats);
+                populateDestinoFilter(result.data);
+                renderTable(result.data);
+                document.getElementById('stats').style.display = 'block';
+                document.getElementById('filters').style.display = 'block';
+                document.getElementById('tableWrapper').style.display = 'block';
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-BR');
+
+                const msg = `${result.stats.total} registros (${result.stats.reservame} RSV + ${result.stats.lcx} LCX)`;
+                showToast(`â ${msg}`);
+            } else {
+                showToast('â Erro: ' + (result.error || 'desconhecido'));
+            }
+        } catch (e) {
+            showToast('â Erro de conexÃ£o: ' + e.message);
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('btnBuscar').disabled = false;
+            document.getElementById('spinnerBtn').style.display = 'none';
+        }
+    }
+
+    // ââ Render stats ââ
+    function renderStats(s) {
+        document.getElementById('statTotal').textContent = s.total;
+        document.getElementById('statRsv').textContent = s.reservame;
+        document.getElementById('statLcx').textContent = s.lcx;
+        document.getElementById('statHotel').textContent = s.hotelPend;
+        document.getElementById('statTel').textContent = s.telPend;
+        document.getElementById('statFin').textContent = s.finPend;
+        const ok = s.total - Math.max(s.hotelPend, s.telPend, s.finPend);
+        document.getElementById('statOk').textContent = Math.max(0, ok);
+    }
+
+    // ââ Populate destino dropdown ââ
+    function populateDestinoFilter(data) {
+        const sel = document.getElementById('filterDestino');
+        const destinos = [...new Set(data.map(r => r.destino).filter(Boolean))].sort();
+        sel.innerHTML = '<option value="">Todos os destinos</option>';
+        for (const d of destinos) {
+            sel.innerHTML += `<option value="${d}">${d}</option>`;
+        }
+    }
+
+    // ââ Render table ââ
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        const filtered = data.filter(r => {
+            if (currentFilter === 'pend') {
+                return !r.hotelOk || !r.telefoneOk || !r.financeiroOk;
+            }
+            if (currentFilter === 'rsv') return r.sistema === 'Reservame';
+            if (currentFilter === 'lcx') return r.sistema === 'LCX';
+            return true;
+        });
+
+        // Filtro por destino
+        const destFilter = document.getElementById('filterDestino').value;
+        const afterDest = destFilter ? filtered.filter(r => r.destino === destFilter) : filtered;
+
+        const search = (document.getElementById('searchInput').value || '').toLowerCase();
+        const final = search ? afterDest.filter(r =>
+            (r.nome || '').toLowerCase().includes(search) ||
+            (r.hotel || '').toLowerCase().includes(search) ||
+            (r.vendedor || '').toLowerCase().includes(search) ||
+            (r.destino || '').toLowerCase().includes(search) ||
+            (r.tour || '').toLowerCase().includes(search) ||
+            (r.id || '').toLowerCase().includes(search)
+        ) : afterDest;
+
+        for (const r of final) {
+            const tr = document.createElement('tr');
+            tr.className = r.sistema === 'LCX' ? 'row-lcx' : 'row-rsv';
+
+            tr.innerHTML = `
+                <td><span class="badge ${r.sistema === 'LCX' ? 'badge-lcx' : 'badge-rsv'}">${r.sistema}</span></td>
+                <td>${esc(r.destino)}</td>
+                <td>${esc(r.tour)}</td>
+                <td>${esc(r.hora)}</td>
+                <td>${esc(r.id)}</td>
+                <td><strong>${esc(r.nome)}</strong></td>
+                <td style="text-align:center">${esc(r.pax)}</td>
+                <td class="wrap">${esc(r.hotel)}</td>
+                <td style="text-align:center">${r.hotelOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td>${esc(r.telefone)}</td>
+                <td style="text-align:center">${r.telefoneOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td><strong>${esc(r.vendedor)}</strong></td>
+                <td style="text-align:right">${esc(r.valor)}</td>
+                <td style="text-align:center">${r.financeiroOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td class="wrap">${esc((r.obs || '').substring(0, 150))}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
+    function esc(s) { return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // ââ Filters ââ
+    function setFilter(el) {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        currentFilter = el.dataset.filter;
+        renderTable(currentData);
+    }
+    function filterTable() { renderTable(currentData); }
+
+    // ââ Sort ââ
+    function sortTable(col) {
+        if (sortCol === col) { sortAsc = !sortAsc; }
+        else { sortCol = col; sortAsc = true; }
+        const keys = ['sistema','destino','tour','hora','id','nome','pax','hotel','hotelOk','telefone','telefoneOk','vendedor','valor','financeiroOk','obs'];
+        const key = keys[col];
+        currentData.sort((a, b) => {
+            let va = (a[key] || ''), vb = (b[key] || '');
+            if (typeof va === 'boolean') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
+            if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+            return sortAsc ? va - vb : vb - va;
+        });
+        renderTable(currentData);
+    }
+
+    // ââ Toast ââ
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 4000);
+    }
+</script>
+
+</body>
+</html>

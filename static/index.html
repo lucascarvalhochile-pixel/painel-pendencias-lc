@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LC Turismo â PendÃªncias Operacionais</title>
+    <title>LC Turismo — Pendências Operacionais</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,7 +12,7 @@
             color: #1a1a2e;
         }
 
-        /* ââ HEADER ââ */
+        /* ── HEADER ── */
         .header {
             background: linear-gradient(135deg, #1F4E79 0%, #2980b9 100%);
             color: white;
@@ -27,7 +27,7 @@
         .header .status { font-size: 12px; opacity: 0.7; text-align: right; }
         .header .status .live { color: #2ecc71; font-weight: bold; }
 
-        /* ââ CONTROLS ââ */
+        /* ── CONTROLS ── */
         .controls {
             background: white;
             padding: 20px 30px;
@@ -113,7 +113,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ââ STATS ââ */
+        /* ── STATS ── */
         .stats {
             display: none;
             padding: 15px 30px;
@@ -151,7 +151,7 @@
         .stat-card.pend .number { color: #e74c3c; }
         .stat-card.ok .number { color: #27ae60; }
 
-        /* ââ FILTERS ââ */
+        /* ── FILTERS ── */
         .filters {
             display: none;
             padding: 10px 30px;
@@ -191,7 +191,7 @@
         }
         .search-input:focus { outline: none; border-color: #2980b9; }
 
-        /* ââ TABLE ââ */
+        /* ── TABLE ── */
         .table-wrapper {
             display: none;
             margin: 0 20px 20px;
@@ -251,8 +251,17 @@
         .badge-pend { background: #fadbd8; color: #c0392b; }
         .badge-rsv { background: #fdebd0; color: #a04000; }
         .badge-lcx { background: #d4e6f1; color: #1a5276; }
+        .badge-toggle {
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .badge-toggle:hover {
+            transform: scale(1.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
-        /* ââ LOADING ââ */
+        /* ── LOADING ── */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -288,7 +297,7 @@
             margin-top: 8px;
         }
 
-        /* ââ EMPTY STATE ââ */
+        /* ── EMPTY STATE ── */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -298,7 +307,7 @@
         .empty-state p { font-size: 16px; }
         .empty-state .hint { font-size: 13px; margin-top: 8px; }
 
-        /* ââ TOAST ââ */
+        /* ── TOAST ── */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -330,12 +339,12 @@
 <!-- HEADER -->
 <div class="header">
     <div>
-        <h1>PendÃªncias Operacionais</h1>
-        <div class="subtitle">LC Turismo â Reservame + LCX</div>
+        <h1>Pendências Operacionais</h1>
+        <div class="subtitle">LC Turismo — Reservame + LCX</div>
     </div>
     <div class="status">
-        <div>Ãltima atualizaÃ§Ã£o:</div>
-        <div id="lastUpdate">â</div>
+        <div>Última atualização:</div>
+        <div id="lastUpdate">—</div>
     </div>
 </div>
 
@@ -343,19 +352,19 @@
 <div class="controls">
     <label>De:</label>
     <input type="date" id="dataInicio" />
-    <label>AtÃ©:</label>
+    <label>Até:</label>
     <input type="date" id="dataFim" />
 
     <button class="btn btn-primary" id="btnBuscar" onclick="buscar()">
         <span class="spinner" id="spinnerBtn"></span>
-        ð Atualizar
+        🔄 Atualizar
     </button>
 
     <div style="border-left: 2px solid #ddd; height: 30px;"></div>
 
     <button class="btn btn-today" onclick="buscarHoje()">Hoje</button>
-    <button class="btn btn-tomorrow" onclick="buscarAmanha()">AmanhÃ£</button>
-    <button class="btn btn-week" onclick="buscarSemana()">PrÃ³x. 7 dias</button>
+    <button class="btn btn-tomorrow" onclick="buscarAmanha()">Amanhã</button>
+    <button class="btn btn-week" onclick="buscarSemana()">Próx. 7 dias</button>
 </div>
 
 <!-- STATS -->
@@ -397,7 +406,7 @@
     <div class="filter-row">
         <span style="font-size: 12px; font-weight: 700; color: #777;">SISTEMA:</span>
         <div class="filter-chip active" data-filter="all" onclick="setFilter(this)">Todos</div>
-        <div class="filter-chip" data-filter="pend" onclick="setFilter(this)">SÃ³ PendÃªncias</div>
+        <div class="filter-chip" data-filter="pend" onclick="setFilter(this)">Só Pendências</div>
         <div class="filter-chip" data-filter="rsv" onclick="setFilter(this)">Reservame</div>
         <div class="filter-chip" data-filter="lcx" onclick="setFilter(this)">LCX</div>
         <div style="border-left: 2px solid #ddd; height: 24px; margin: 0 5px;"></div>
@@ -440,9 +449,9 @@
 
 <!-- EMPTY STATE -->
 <div class="empty-state" id="emptyState">
-    <div class="icon">ð</div>
+    <div class="icon">📋</div>
     <p>Selecione uma data e clique em Atualizar</p>
-    <div class="hint">Ou use os botÃµes rÃ¡pidos: Hoje, AmanhÃ£, PrÃ³x. 7 dias</div>
+    <div class="hint">Ou use os botões rápidos: Hoje, Amanhã, Próx. 7 dias</div>
 </div>
 
 <!-- LOADING OVERLAY -->
@@ -458,7 +467,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    // ââ Init dates ââ
+    // ── Init dates ──
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
     document.getElementById('dataInicio').value = todayStr;
@@ -469,7 +478,7 @@
     let sortCol = -1;
     let sortAsc = true;
 
-    // ââ Quick buttons ââ
+    // ── Quick buttons ──
     function buscarHoje() {
         document.getElementById('dataInicio').value = todayStr;
         document.getElementById('dataFim').value = todayStr;
@@ -489,7 +498,7 @@
         buscar();
     }
 
-    // ââ Main fetch ââ
+    // ── Main fetch ──
     async function buscar() {
         const dataInicio = document.getElementById('dataInicio').value;
         const dataFim = document.getElementById('dataFim').value;
@@ -522,12 +531,12 @@
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-BR');
 
                 const msg = `${result.stats.total} registros (${result.stats.reservame} RSV + ${result.stats.lcx} LCX)`;
-                showToast(`â ${msg}`);
+                showToast(`✅ ${msg}`);
             } else {
-                showToast('â Erro: ' + (result.error || 'desconhecido'));
+                showToast('❌ Erro: ' + (result.error || 'desconhecido'));
             }
         } catch (e) {
-            showToast('â Erro de conexÃ£o: ' + e.message);
+            showToast('❌ Erro de conexão: ' + e.message);
         } finally {
             document.getElementById('loading').style.display = 'none';
             document.getElementById('btnBuscar').disabled = false;
@@ -535,7 +544,7 @@
         }
     }
 
-    // ââ Render stats ââ
+    // ── Render stats ──
     function renderStats(s) {
         document.getElementById('statTotal').textContent = s.total;
         document.getElementById('statRsv').textContent = s.reservame;
@@ -547,7 +556,7 @@
         document.getElementById('statOk').textContent = Math.max(0, ok);
     }
 
-    // ââ Populate destino dropdown ââ
+    // ── Populate destino dropdown ──
     function populateDestinoFilter(data) {
         const sel = document.getElementById('filterDestino');
         const destinos = [...new Set(data.map(r => r.destino).filter(Boolean))].sort();
@@ -557,7 +566,7 @@
         }
     }
 
-    // ââ Render table ââ
+    // ── Render table ──
     function renderTable(data) {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -585,7 +594,9 @@
             (r.id || '').toLowerCase().includes(search)
         ) : afterDest;
 
-        for (const r of final) {
+        for (let i = 0; i < final.length; i++) {
+            const r = final[i];
+            const idx = currentData.indexOf(r);
             const tr = document.createElement('tr');
             tr.className = r.sistema === 'LCX' ? 'row-lcx' : 'row-rsv';
 
@@ -598,12 +609,12 @@
                 <td><strong>${esc(r.nome)}</strong></td>
                 <td style="text-align:center">${esc(r.pax)}</td>
                 <td class="wrap">${esc(r.hotel)}</td>
-                <td style="text-align:center">${r.hotelOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td style="text-align:center"><span class="badge badge-toggle ${r.hotelOk ? 'badge-ok' : 'badge-pend'}" onclick="toggleStatus(${idx},'hotelOk')" title="Clique para alternar">${r.hotelOk ? 'OK' : 'PEND'}</span></td>
                 <td>${esc(r.telefone)}</td>
-                <td style="text-align:center">${r.telefoneOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td style="text-align:center"><span class="badge badge-toggle ${r.telefoneOk ? 'badge-ok' : 'badge-pend'}" onclick="toggleStatus(${idx},'telefoneOk')" title="Clique para alternar">${r.telefoneOk ? 'OK' : 'PEND'}</span></td>
                 <td><strong>${esc(r.vendedor)}</strong></td>
                 <td style="text-align:right">${esc(r.valor)}</td>
-                <td style="text-align:center">${r.financeiroOk ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-pend">PEND</span>'}</td>
+                <td style="text-align:center"><span class="badge badge-toggle ${r.financeiroOk ? 'badge-ok' : 'badge-pend'}" onclick="toggleStatus(${idx},'financeiroOk')" title="Clique para alternar">${r.financeiroOk ? 'OK' : 'PEND'}</span></td>
                 <td class="wrap">${esc((r.obs || '').substring(0, 150))}</td>
             `;
             tbody.appendChild(tr);
@@ -612,7 +623,7 @@
 
     function esc(s) { return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-    // ââ Filters ââ
+    // ── Filters ──
     function setFilter(el) {
         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
@@ -621,7 +632,7 @@
     }
     function filterTable() { renderTable(currentData); }
 
-    // ââ Sort ââ
+    // ── Sort ──
     function sortTable(col) {
         if (sortCol === col) { sortAsc = !sortAsc; }
         else { sortCol = col; sortAsc = true; }
@@ -636,7 +647,35 @@
         renderTable(currentData);
     }
 
-    // ââ Toast ââ
+    // ── Toggle status ──
+    function toggleStatus(idx, field) {
+        if (idx < 0 || idx >= currentData.length) return;
+        currentData[idx][field] = !currentData[idx][field];
+        renderTable(currentData);
+        recalcStats();
+        const nome = currentData[idx].nome || 'registro';
+        const label = field === 'hotelOk' ? 'Hotel' : field === 'telefoneOk' ? 'Telefone' : 'Financeiro';
+        const novo = currentData[idx][field] ? 'OK' : 'PEND';
+        showToast(`${label} de ${nome} → ${novo}`);
+    }
+
+    function recalcStats() {
+        const t = currentData.length;
+        const rsv = currentData.filter(r => r.sistema === 'Reservame').length;
+        const lcx = currentData.filter(r => r.sistema === 'LCX').length;
+        const hp = currentData.filter(r => !r.hotelOk).length;
+        const tp = currentData.filter(r => !r.telefoneOk).length;
+        const fp = currentData.filter(r => !r.financeiroOk).length;
+        document.getElementById('statTotal').textContent = t;
+        document.getElementById('statRsv').textContent = rsv;
+        document.getElementById('statLcx').textContent = lcx;
+        document.getElementById('statHotel').textContent = hp;
+        document.getElementById('statTel').textContent = tp;
+        document.getElementById('statFin').textContent = fp;
+        document.getElementById('statOk').textContent = Math.max(0, t - Math.max(hp, tp, fp));
+    }
+
+    // ── Toast ──
     function showToast(msg) {
         const t = document.getElementById('toast');
         t.textContent = msg;
